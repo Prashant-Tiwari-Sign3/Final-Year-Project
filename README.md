@@ -6,14 +6,15 @@ This project uses a combination of image segmentation using YOLOv8 and object ch
 
 ## Table of Contents
 
-- Overview
-- Table of Contents
-- Dataset
-- Preprocessing
-- Training
-- Evaluation
-- Usage
-- Dependencies
++ [Overview](#overview)
++ [Table of Contents](#table-of-contents)
++ [Dataset](#dataset)
++ [Model Architecture](#model-architecture)
++ [Preprocessing](#preprocessing)
++ [Training](#training)
++ [Evaluation](#evaluation)
++ [Usage](#usage)
++ [Dependencies](#dependencies)
 
 ## Dataset
 
@@ -22,4 +23,4 @@ The dataset has been specially created by us for the purpose of this project. It
 2. Images with a multiple copies of the same book
 3. Images with multiple copies of multiple books
 
-All images are 12 Megapixels(3000x4000) in resolution and were preprocessed before being used for training.
+All images are 12 Megapixels(3000x4000 or 4032x2268) in resolution and were preprocessed before being used for training. There are total of **745** single book images for initial phase of model.
