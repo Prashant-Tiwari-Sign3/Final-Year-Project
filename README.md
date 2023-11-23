@@ -23,4 +23,4 @@ The dataset has been specially created by us for the purpose of this project. It
 2. Images with a multiple copies of the same book
 3. Images with multiple copies of multiple books
 
-All images are 12 Megapixels(3000x4000 or 4032x2268) in resolution and were preprocessed before being used for training. There are total of **745** single book images for initial phase of model.
+All images are 12 Megapixels(3000x4000 or 4032x2268) in resolution and were preprocessed before being used for training. There are total of **763** single book images for initial phase of model.
