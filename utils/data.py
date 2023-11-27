@@ -195,3 +195,6 @@ class InstanceSegDataset(Dataset):
 
         img, target = self.transform(img, target)
         return img, target
+
+def collate_fn(batch):
+    return tuple(zip(*batch))
