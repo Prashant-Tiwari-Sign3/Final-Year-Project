@@ -197,4 +197,14 @@ class InstanceSegDataset(Dataset):
         return img, target
 
 def collate_fn(batch):
+    """
+    collate_fn: Function to be used as the collate_fn parameter in PyTorch DataLoader.
+    This function is used to customize the behavior of collating samples in a batch.
+
+    Parameters:
+        - batch (list): List of individual samples, each typically containing input features and target labels.
+
+    Returns:
+        - tuple: A tuple containing batches of each element in the input samples. The elements are grouped based on their position in the original samples.
+    """
     return tuple(zip(*batch))

@@ -16,6 +16,24 @@ def TrainLoopV1(
     batch_loss:int=1,
     device:str='cuda'
 ):
+    """
+    TrainLoopV1: Function to perform training loop for a PyTorch model.
+
+    Parameters:
+        - model (torch.nn.Module): The PyTorch model to be trained.
+        - optimizer (torch.optim.Optimizer): The optimizer used for model parameter updates.
+        - train_loader (torch.utils.data.DataLoader): DataLoader for training dataset.
+        - val_loader (torch.utils.data.DataLoader): DataLoader for validation dataset.
+        - scheduler (optional): Learning rate scheduler. Default is None.
+        - n_epochs (int): Number of training epochs. Default is 20.
+        - early_stopping_rounds (int): Number of epochs to wait for improvement in validation loss before early stopping. Default is 5.
+        - return_best_model (bool): Whether to return the model with the best validation loss. Default is True.
+        - batch_loss (int): Frequency of printing batch loss during training. Default is 1.
+        - device (str): Device to which the model and data should be moved. Default is 'cuda'.
+
+    Returns:
+        - None: The function modifies the model in place. If return_best_model is True, the best model is loaded at the end.
+    """
     model.to(device)
     best_val_loss = float('inf')
     epochs_without_improvement = 0
@@ -81,6 +99,24 @@ def TrainLoopV2(
     batch_loss:int=1,
     device:str='cuda'
 ):
+    """
+    TrainLoopV2: Function to perform a training loop for a PyTorch model and visualize training and validation loss.
+
+    Parameters:
+        - model (torch.nn.Module): The PyTorch model to be trained.
+        - optimizer (torch.optim.Optimizer): The optimizer used for model parameter updates.
+        - train_loader (torch.utils.data.DataLoader): DataLoader for training dataset.
+        - val_loader (torch.utils.data.DataLoader): DataLoader for validation dataset.
+        - scheduler (optional): Learning rate scheduler. Default is None.
+        - n_epochs (int): Number of training epochs. Default is 20.
+        - early_stopping_rounds (int): Number of epochs to wait for improvement in validation loss before early stopping. Default is 5.
+        - return_best_model (bool): Whether to return the model with the best validation loss. Default is True.
+        - batch_loss (int): Frequency of printing batch loss during training. Default is 1.
+        - device (str): Device to which the model and data should be moved. Default is 'cuda'.
+
+    Returns:
+        - None: The function modifies the model in place. If return_best_model is True, the best model is loaded at the end.
+    """
     model.to(device)
     best_val_loss = float('inf')
     epochs_without_improvement = 0
