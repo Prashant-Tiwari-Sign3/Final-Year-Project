@@ -35,7 +35,7 @@ import json
 import cv2 as cv
 
 def CreateMask():
-    img_path = "Data/Single Book Images"
+    img_path = "Data/Images/Single Book Images"
     img_list = os.listdir(img_path)
 
     sizes = []
