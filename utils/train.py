@@ -120,8 +120,8 @@ def TrainLoopV2(
     model.to(device)
     best_val_loss = float('inf')
     epochs_without_improvement = 0
-    total_train_loss = 0
-    total_val_loss = 0
+    total_train_loss = []
+    total_val_loss = []
     best_weights = model.state_dict()
     for epoch in tqdm(range(n_epochs)):
         model.train()
