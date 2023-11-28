@@ -42,7 +42,7 @@ def TrainLoopV1(
         model.train()
         print("\n---------------------\nEpoch {} | Learning Rate = {}".format(epoch, optimizer.param_groups[0]['lr']))
         train_loss = 0
-        for i, images, target in enumerate(train_loader):
+        for i, (images, target) in enumerate(train_loader):
             images = list(image.to(device) for image in images)
             target = [{k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in t.items()} for t in target]
             optimizer.zero_grad()
@@ -127,7 +127,7 @@ def TrainLoopV2(
         model.train()
         print("\n---------------------\nEpoch {} | Learning Rate = {}".format(epoch, optimizer.param_groups[0]['lr']))
         train_loss = 0
-        for i, images, target in enumerate(train_loader):
+        for i, (images, target) in enumerate(train_loader):
             images = list(image.to(device) for image in images)
             target = [{k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in t.items()} for t in target]
             optimizer.zero_grad()
