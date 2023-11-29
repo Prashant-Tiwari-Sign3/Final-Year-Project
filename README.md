@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project uses a combination of image segmentation using YOLOv8 and object character recognition with convolutional recurrent neural network to detect the names and number of books in a bookshelf from its image.
+This project uses a combination of image segmentation using YOLOv8 and object character recognition with convolutional recurrent neural network to detect the names and number of books in a bookshelf from its image.ok
 
 ## Table of Contents
 
