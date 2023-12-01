@@ -50,7 +50,7 @@ def TrainLoopV1(
             losses = sum(loss for loss in loss_dict.values())
             train_loss += losses
             losses.backward()
-            optimizer.zero_grad()
+            optimizer.step()
             if i % batch_loss == 0:
                 print("Loss for Batch {} = {}".format(i, losses))
 
@@ -135,7 +135,7 @@ def TrainLoopV2(
             losses = sum(loss for loss in loss_dict.values())
             train_loss += losses
             losses.backward()
-            optimizer.zero_grad()
+            optimizer.step()
             if i % batch_loss == 0:
                 print("Loss for Batch {} = {}".format(i, losses))
 
