@@ -139,7 +139,7 @@ def TrainLoopV2(
             if i % batch_loss == 0:
                 print("Loss for Batch {} = {}".format(i, losses))
 
-        print("Loss for epoch {} = {}".format(epoch, train_loss))
+        print("\nLoss for epoch {} = {}\n".format(epoch, train_loss))
         total_train_loss.append(train_loss/len(train_loader.dataset))
 
         model.eval()
@@ -148,9 +148,9 @@ def TrainLoopV2(
             for images, target in val_loader:
                 images = list(image.to(device) for image in images)
                 target = [{k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in t.items()} for t in target]
-                loss_dict = model(images, target)
-                losses = sum(loss for loss in loss_dict.values())
-                validation_loss += losses
+                val_loss_dict = model(images, target)
+                val_losses = sum(loss for loss in val_loss_dict.values())
+                validation_loss += val_losses
             
             if validation_loss < best_val_loss:
                 best_val_loss = validation_loss
@@ -170,6 +170,7 @@ def TrainLoopV2(
             except:
                 scheduler.step()
         if epochs_without_improvement == early_stopping_rounds:
+            print("Early stopping triggered")
             break
 
     if return_best_model == True:

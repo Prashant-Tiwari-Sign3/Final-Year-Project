@@ -54,9 +54,13 @@ def SBStageTraining():
     train_loader = DataLoader(train_set, 4, shuffle=True, collate_fn=collate_fn)
     val_loader = DataLoader(val_set, 4, shuffle=True, collate_fn=collate_fn)
 
+    def lr_lambda(epoch):
+        if epoch <= 20:
+            return 0.9 ** epoch
+        return 0.9 ** 20
     model = get_instance_segmentation_model(2)
     optimizer = torch.optim.NAdam(model.parameters(), lr=0.001)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.9, 10)
+    scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer, lr_lambda)
 
     TrainLoopV2(model, optimizer, train_loader, val_loader, scheduler, 50, 10, batch_loss=5)
     torch.save(model.state_dict(), 'Models/Stage1.pth')
