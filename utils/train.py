@@ -56,7 +56,6 @@ def TrainLoopV1(
 
         print("Loss for epoch {} = {}".format(epoch, train_loss))
 
-        model.eval()
         with torch.inference_mode():
             validation_loss = 0
             for images, target in val_loader:
@@ -139,7 +138,7 @@ def TrainLoopV2(
             if i % batch_loss == 0:
                 print("Loss for Batch {} = {}".format(i, losses))
 
-        print("Loss for epoch {} = {}".format(epoch, train_loss))
+        print("\nLoss for epoch {} = {}\n".format(epoch, train_loss))
         total_train_loss.append(train_loss/len(train_loader.dataset))
 
         model.eval()
@@ -170,6 +169,7 @@ def TrainLoopV2(
             except:
                 scheduler.step()
         if epochs_without_improvement == early_stopping_rounds:
+            print("Early stopping triggered")
             break
 
     if return_best_model == True:
