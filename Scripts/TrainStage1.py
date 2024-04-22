@@ -34,7 +34,7 @@ Date:
 """
 import sys
 sys.path.append("C:\College\Projects\Final-Year-Project")
-from utils.models.segmentation import get_instance_segmentation_model
+from utils.Models.segmentation import get_instance_segmentation_model
 from utils.train import TrainLoopV2
 from utils.data import InstanceSegDataset, collate_fn
 
@@ -56,13 +56,13 @@ def SBStageTraining():
 
     def lr_lambda(epoch):
         if epoch <= 20:
-            return 0.9 ** epoch
-        return 0.9 ** 20
+            return 0.9
+        return 1
     model = get_instance_segmentation_model(2)
-    optimizer = torch.optim.NAdam(model.parameters(), lr=0.001)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.001)
     scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer, lr_lambda)
 
-    TrainLoopV2(model, optimizer, train_loader, val_loader, scheduler, 50, 10, batch_loss=5)
+    TrainLoopV2(model, optimizer, train_loader, val_loader, scheduler, 5, 5, batch_loss=1)
     torch.save(model.state_dict(), 'Models/Stage1.pth')
 
 if __name__ == '__main__':

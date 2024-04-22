@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import seaborn as sns
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 def TrainLoopV1(
@@ -181,17 +181,15 @@ def TrainLoopV2(
     total_train_loss = np.array(total_train_loss)
     total_val_loss = np.array(total_val_loss)
 
-    x_train = np.arange(len(total_train_loss))
-    x_val = np.arange(len(total_val_loss))
-
     sns.set_style('whitegrid')
     plt.figure(figsize=(12,9))
     
-    sns.lineplot(x=x_train, y=total_train_loss, label='Training Loss')
-    sns.lineplot(x=x_val, y=total_val_loss, label='Validation Loss')
+    sns.lineplot(x=range(len(total_train_loss)), y=total_train_loss, label='Training Loss')
+    sns.lineplot(x=range(len(total_val_loss)), y=total_val_loss, label='Validation Loss')
     plt.title("Loss over {} Epochs".format(len(total_train_loss)))
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.xticks(np.arange(len(total_train_loss)))
+    plt.xticks(range(len(total_train_loss)))
+    plt.legend()
 
     plt.show()
