@@ -1,6 +1,9 @@
+import os
+import json
 import torch
 import cv2 as cv
 import numpy as np
+from PIL import Image
 from torchvision import tv_tensors
 from torch.utils.data import Dataset
 from torchvision.io import read_image
@@ -27,7 +30,7 @@ def create_mask_from_json(json_data, image_size):
     ```
     """
     mask = np.zeros(image_size, dtype=np.uint8)
-    for polygon_data in json_data:
+    for i, polygon_data in enumerate(json_data):
         polygon_coordinates = polygon_data['content']
         x_coords = [point['x'] for point in polygon_coordinates]
         y_coords = [point['y'] for point in polygon_coordinates]
@@ -35,7 +38,7 @@ def create_mask_from_json(json_data, image_size):
         polygon_array = np.array(list(zip(x_coords, y_coords)), dtype=np.int32)
         polygon_array = polygon_array.reshape((-1, 1, 2))
 
-        cv.fillPoly(mask, [polygon_array], color=1)
+        cv.fillPoly(mask, [polygon_array], color=i+1)
 
     return mask
 
@@ -183,7 +186,7 @@ class InstanceSegDataset(Dataset):
         num_objs = len(obj_ids)
         masks = (mask == obj_ids[:, None, None]).to(dtype=torch.uint8)
         boxes = masks_to_boxes(masks)
-        labels = torch.ones((num_objs,), dtype=torch.int64)
+        labels = torch.ones((num_objs,), dtype=torch.int8)
         img = tv_tensors.Image(img)
 
         target = {}
@@ -206,3 +209,57 @@ def collate_fn(batch):
         - tuple: A tuple containing batches of each element in the input samples. The elements are grouped based on their position in the original samples.
     """
     return tuple(zip(*batch))
+
+
+def create_yolo_annotations(json_path: str):
+    json_list = os.listdir(json_path)
+    yolo_dataset_path = json_path.replace('JSONs', 'yolo')
+    if not os.path.exists(yolo_dataset_path):
+        os.makedirs(yolo_dataset_path)
+    yolo_list = [yolo_dataset_path + '/' + file.replace('json', 'txt') for file in json_list]
+    json_list = [json_path+'/'+file for file in json_list]
+    image_list = [file.replace('json', 'jpg') for file in json_list]
+    image_list = [file.replace('JSONs', 'Images') for file in image_list]
+
+    for i in range(len(json_list)):
+        with open(json_list[i], 'r') as f:
+            data = json.load(f)
+        img = Image.open(image_list[i])
+        img_width = img.size[0]
+        img_height = img.size[1]
+        with open(yolo_list[i], 'w') as out_file:
+            for obj in data:
+                polygon = obj['content']
+                segmentation = []
+                for point in polygon:
+                    x, y = point.values()
+                    normalized_x = x / img_width
+                    normalized_y = y / img_height
+                    segmentation.append(f"{normalized_x} {normalized_y}")
+
+                segmentation_str = " ".join(segmentation)
+                class_index = 0  
+                out_file.write(f"{class_index} {segmentation_str}\n")
+
+def create_yolo_annotations_v2(json_path: str, destination_path: str):
+    json_list = os.listdir(json_path)
+    txt_list = [file.replace('json', 'txt') for file in json_list]
+    json_list = [json_path + '/' + file for file in json_list]
+    txt_list = [destination_path + '/' + file for file in txt_list]
+
+    if not os.path.exists(destination_path):
+        os.makedirs(destination_path)
+
+    for path1, path2 in zip(json_list, txt_list):
+        with open(path1, 'r') as a:
+            data = json.load(a)
+
+        image_width = data["imageWidth"]
+        image_height = data["imageHeight"]
+
+        with open(path2, "w") as file:
+            for shape in data["shapes"]:
+                points = shape["points"]
+                normalized_points = [(x / image_width, y / image_height) for x, y in points]
+                line = f"{0} " + " ".join(f"{x:.8f} {y:.8f}" for x, y in normalized_points)
+                file.write(line + "\n")
