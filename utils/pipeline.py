@@ -7,8 +7,9 @@ import warnings
 import cv2 as cv
 import numpy as np
 from typing import Optional
+from fuzzywuzzy import fuzz
 from ultralytics import YOLO
-from collections import Counter
+from collections import Counter, defaultdict
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 
@@ -66,7 +67,7 @@ class ModelPipeline:
         else:
             logger.warning("Image directory not provided in config, cant perform this operation")
 
-    def process_single_image(self, img: np.ndarray | str, visaulize: bool = False , key: Optional[str] = None):
+    def process_single_image(self, img: np.ndarray | str, key: Optional[str] = None, visualize: bool = False):
         if isinstance(img, str):
             logger.warning("Image path provided instead of image, trying to load image")
             img = cv.cvtColor(cv.imread(img), cv.COLOR_BGR2RGB)
@@ -79,19 +80,18 @@ class ModelPipeline:
         logger.info("{} books detected".format(len(results[0].boxes.conf)))
         book_names = []
         for mask in results[0].masks.data:
-            word_instances, book = self.__single_pass(img, mask)
+            _, book = self.__single_pass(img, mask, visualize)
             logger.info("Detected book name: {}".format(book))
             book_names.append(book)
 
-        books_count = dict(Counter(book_names))                 # TODO: Replace this with counter that uses string matching score
+        books_count = self.count_books(book_names)                  #// TODO: Replace this with counter that uses string matching score
         if key is not None:
             self.results[key] = books_count
             logger.info("{} processed".format(key))
         else:
             print(books_count)
-            # self.visualize_boxes(img, word_instances)
 
-    def __single_pass(self, img, mask):
+    def __single_pass(self, img, mask, visualize: bool = False):
         mask = mask.cpu().numpy()
         mask *= 255
         mask = mask.astype(np.uint8)
@@ -102,14 +102,16 @@ class ModelPipeline:
         largest_contour = max(contours, key=cv.contourArea)
         x, y, w, h = cv.boundingRect(largest_contour)
         masked_img = masked_img[y:y+h, x:x+w]
-        logger.info("Detected book cropped out")
+        logger.debug("Detected book cropped out")
         if masked_img.shape[0] > masked_img.shape[1]:
             masked_img = cv.rotate(masked_img, cv.ROTATE_90_COUNTERCLOCKWISE)
-            logger.info("Rotating upright image")
+            logger.debug("Rotating upright image")
         _, _, word_instances = self.textmodel(**self.preprocess_img(masked_img))
         name = ''
         for word in word_instances:
             name+= str(word.text)+' '
+        if visualize:
+            self.visualize_boxes(masked_img, word_instances)
         return word_instances, name.strip()
 
     @staticmethod
@@ -145,3 +147,22 @@ class ModelPipeline:
                 (int(word_bbox[0]), int(word_bbox[1])), cv.FONT_HERSHEY_SIMPLEX, 2.5, (0, 0, 0), 5
             )
         plt.imshow(img_word_ins)
+        plt.show()
+
+    @staticmethod
+    def count_books(book_names, threshold: int = 75):
+        similar_counts = defaultdict(int)
+        grouped_strings = []
+
+        for string in book_names:
+            found_group = False
+            for key in grouped_strings:
+                if fuzz.token_set_ratio(string, key) >= threshold:
+                    similar_counts[key] += 1
+                    found_group = True
+                    break
+            if not found_group:
+                similar_counts[string] += 1
+                grouped_strings.append(string)
+        
+        return dict(similar_counts)
