@@ -9,7 +9,7 @@ import numpy as np
 from typing import Optional
 from fuzzywuzzy import fuzz
 from ultralytics import YOLO
-from collections import Counter, defaultdict
+from collections import defaultdict
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 
@@ -66,16 +66,21 @@ class ModelPipeline:
                     json.dump(self.results, file, indent=4)
         else:
             logger.warning("Image directory not provided in config, cant perform this operation")
-
+    # TODO: Add function to reduce number of OCR ops needed by clustering the images
     def process_single_image(self, img: np.ndarray | str, key: Optional[str] = None, visualize: bool = False):
         if isinstance(img, str):
             logger.warning("Image path provided instead of image, trying to load image")
-            img = cv.cvtColor(cv.imread(img), cv.COLOR_BGR2RGB)
+            img = cv.imread(img)
             if img is not None:
+                img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
                 logger.info("Image loaded successfully")
             else:
-                logger.error("FileNotFoundError: Invalid image path {}".format(img))
-                raise FileNotFoundError("Invalid image path: {}".format(img))
+                if key is None:
+                    logger.error("FileNotFoundError: Invalid image path {}".format(img))
+                    raise FileNotFoundError("Invalid image path: {}".format(img))
+                else:
+                    logger.error("FileNotFoundError: Invalid image path {}".format(img))
+                    return
         results = self.segmodel(img, save=False)
         logger.info("{} books detected".format(len(results[0].boxes.conf)))
         book_names = []
@@ -84,7 +89,7 @@ class ModelPipeline:
             logger.info("Detected book name: {}".format(book))
             book_names.append(book)
 
-        books_count = self.count_books(book_names)                  #// TODO: Replace this with counter that uses string matching score
+        books_count = self.count_books(book_names)                  
         if key is not None:
             self.results[key] = books_count
             logger.info("{} processed".format(key))
